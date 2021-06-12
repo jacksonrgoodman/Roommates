@@ -24,7 +24,7 @@ namespace Roommates.Repositories
                 conn.Open();
 
                 //Sql command, which we again "use"
-                using (SqlCommand cmd = conn.CreateCommand());
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
                     // sql command to get id and chores
                     cmd.CommandText = "SELECT Id, Name FROM Chore";
@@ -52,10 +52,51 @@ namespace Roommates.Repositories
                         {
                             Id = idValue,
                             Name = nameValue,
-                        }Room
-
-                        rooms.Add(room);
+                        };
+                        // add that chore object to our list
+                        chores.Add(chore);
                     }
+                    //we have to close the reader when we are done.
+                    reader.Close();
+                    // then we return the list when the method is called
+                    return chores;
+                }
+            }
+        }
+        //? 3. Return single room by id
+        public Chore GetByID(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, Name FROM Chore WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@id",id);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Chore> chores = new List<Chore>();
+
+                    while (reader.Read())
+                    {
+                        // Positioning the data for Id, "ORDINAL"
+                        int idColumnPosition = reader.GetOrdinal("Id");
+                        // Get the value for particular ordinal
+                        int idValue = reader.GetInt32(idColumnPosition);
+
+                        int nameColumnPosition = reader.GetOrdinal("Name");
+
+                        string nameValue = reader.GetString(nameColumnPosition);
+
+                        Chore chore = new Chore
+                        {
+                            Id = idValue,
+                            Name = nameValue
+                        };
+                        chores.Add(chore);
+                    }
+                    reader.Close();
+                    return chores;
                 }
             }
         }
