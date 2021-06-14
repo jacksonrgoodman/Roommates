@@ -33,7 +33,7 @@ namespace Roommates.Repositories
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     // list to hold chores from database
-                    List<Chore> chores = new List<Chore>;
+                    List<Chore> chores = new List<Chore>();
 
                     // time to read()
                     while (reader.Read())
@@ -100,6 +100,22 @@ namespace Roommates.Repositories
                 }
             }
         }
+        public void Insert(Chore chore)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO Chore (Name)
+                                            OUTPUT INSERTED.Id
+                                            VALUES (@name)";
+                    cmd.Parameters.AddWithValue("@name", Chore.Name);
+                    int id = (int)cmd.ExecuteScalar();
 
+                    chore.Id = id;
+                }
+            }
+        }
     }
 }
